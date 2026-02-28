@@ -4,9 +4,14 @@
 #include <time.h>
 #define MAX_DOCS 1000000
 #define MAX_LEN 256
+typedef struct Value Value;
 char *docs[MAX_DOCS];
 int num_docs = 0;
-
+char uchars[256];
+int vocab_size = 0;
+int BOS = 0;
+int charset[256] = {0};
+//确定是否有训练语料
 int file_exists(const char *filename){
     FILE *f = fopen(filename, "r");
     if(f){
@@ -15,7 +20,7 @@ int file_exists(const char *filename){
     }
     return 0;
 }
-//if training is expected, open it.Otherwise,download it automatically. 
+//没有训练语料就自动下载
 void download_file(){
     system(
         "curl -L "
@@ -23,6 +28,7 @@ void download_file(){
         "-o input.txt"
     );
 }
+//将训练语料写入docs
 void load_docs(){
     FILE *f = fopen("input.txt", "r");
     if (!f){
@@ -43,6 +49,7 @@ void load_docs(){
     }
     fclose(f);
 }
+//将语料随机打乱
 void shuffle_docs(){
     for(int i = num_docs-1; i > 0 ; i--){
         int j = rand() % (i+1);
@@ -52,6 +59,43 @@ void shuffle_docs(){
         docs[j] = tmp;
     }
 }
+//构建tokenizer第一步:构建无重复词表
+void build_vocab(){
+    for(int i= 0;i < num_docs; i++){
+        char *s = docs[i];
+        for(int j=0 ; s[j] ; j++){
+            unsigned char c = (unsigned char)s[j];//unsigned 可将char范围变为[0,255], 避免了负数.
+            charset[c] = 1;
+        }
+    }
+    vocab_size = 0;
+    for(int i = 0; i < 256 ; i++){
+        if(charset[i]){
+            uchars[vocab_size++] = (char)i;
+        }
+    }
+    BOS = vocab_size;
+    vocab_size += 1;
+}
+//开始实现自动求导系统(计算图 | 自动微分 | 反向传播)
+typedef struct Value{
+    double data;
+    double grad;
+    struct Value **children;
+    double *local_grads;
+    int n_children;
+} Value;
+//创建节点
+Value* craet_value(
+    double
+)
+
+
+
+
+
+
+
 int main(){
     srand(42);
     if(!file_exists("input.txt")){
@@ -60,6 +104,8 @@ int main(){
     load_docs();
     shuffle_docs();
     printf("num docs: %d\n", num_docs);
+    build_vocab();
+    printf("vocab size: %d\n", vocab_size);
     for (int i = 0; i < num_docs; i++) {
         free(docs[i]);
     }
