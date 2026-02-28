@@ -96,6 +96,8 @@ Value* craet_value(
 
 
 
+
+
 int main(){
     srand(42);
     if(!file_exists("input.txt")){
