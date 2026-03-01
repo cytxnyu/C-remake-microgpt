@@ -87,9 +87,34 @@ typedef struct Value{
 } Value;
 //创建节点
 Value* craet_value(
-    double
-)
+    double data,
+    Value **children,
+    double *local_grads,
+    int n_children
+){
+    Value *v = malloc(sizeof(Value));
+    v->data = data;
+    v->gard = 0;
+    v->children = children;
+    v->local_grads = local_grads;
+    v->n_children = n_children;
+    
+    return v;
+}
+Value* add(Value *a,Value *b){
+    Value **children = malloc(2*sizeof(Value*));
+    double *gards = malloc(2*sizeof(double));
 
+    children[0] = a;
+    children[1] = b;
+
+    grads[0] = 1.0;
+    grads[1] = 1.0;
+
+    return create_value(
+        
+    )
+}
 
 
 
